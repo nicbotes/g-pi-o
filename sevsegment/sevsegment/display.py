@@ -49,7 +49,7 @@ class SevenSegmentDisplay:
             for loop in range(0, 7):
                 GPIO.output(self.segments[loop], self.num[s[digit]][loop])
             GPIO.output(self.digits[digit], 0)
-            time.sleep(0.001)
+            time.sleep(0.010)
             GPIO.output(self.digits[digit], 1)
 
     def cleanup(self):

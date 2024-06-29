@@ -14,6 +14,7 @@ pip install .
 
 ```python
 from sevsegment.display import SevenSegmentDisplay
+import time
 
 display = SevenSegmentDisplay()
 try:
