@@ -13,7 +13,7 @@ class SevenSegmentDisplay:
         GPIO.setmode(GPIO.BCM)
         self.setup_pins()
 
-        # Digit patterns for numbers 0-9 and a space, with support for decimal point
+        # Digit patterns for numbers 0-9, A-F, and a space, with support for decimal point
         self.num = {
             ' ':(0,0,0,0,0,0,0,0),
             '0':(1,1,1,1,1,1,0,0),
@@ -25,7 +25,13 @@ class SevenSegmentDisplay:
             '6':(1,0,1,1,1,1,1,0),
             '7':(1,1,1,0,0,0,0,0),
             '8':(1,1,1,1,1,1,1,0),
-            '9':(1,1,1,1,0,1,1,0)
+            '9':(1,1,1,1,0,1,1,0),
+            'A':(1,1,1,0,1,1,1,0),
+            'b':(0,0,1,1,1,1,1,0),
+            'C':(1,0,0,1,1,1,0,0),
+            'd':(0,1,1,1,1,0,1,0),
+            'E':(1,0,0,1,1,1,1,0),
+            'F':(1,0,0,0,1,1,1,0)
         }
 
     def load_config(self):
@@ -50,13 +56,40 @@ class SevenSegmentDisplay:
         s = str(number).rjust(4)
         for digit in range(4):
             for loop in range(0, 8):
-                value = self.num[s[digit]][loop]
+                value = self.num.get(s[digit], (0,0,0,0,0,0,0,0))[loop]
                 if loop == 7 and digit in decimal_points:
                     value = 1
                 GPIO.output(self.segments[loop], value)
             GPIO.output(self.digits[digit], 0)
             time.sleep(0.001)
             GPIO.output(self.digits[digit], 1)
+
+    def display_character(self, digit, character, decimal_point=False):
+        if digit < 0 or digit > 3:
+            raise ValueError("Digit must be between 0 and 3.")
+        
+        pattern = self.num.get(character, (0,0,0,0,0,0,0,0))
+        for loop in range(0, 8):
+            value = pattern[loop]
+            if loop == 7 and decimal_point:
+                value = 1
+            GPIO.output(self.segments[loop], value)
+        GPIO.output(self.digits[digit], 0)
+        time.sleep(0.001)
+        GPIO.output(self.digits[digit], 1)
+        GPIO.output(self.digits[digit], 1)
+
+    def light_segment(self, digit, segment):
+        if digit < 0 or digit > 3:
+            raise ValueError("Digit must be between 0 and 3.")
+        if segment < 0 or segment > 7:
+            raise ValueError("Segment must be between 0 and 7.")
+        
+        GPIO.output(self.segments[segment], 1)
+        GPIO.output(self.digits[digit], 0)
+        time.sleep(0.001)
+        GPIO.output(self.digits[digit], 1)
+        GPIO.output(self.segments[segment], 0)
 
     def cleanup(self):
         # Display empty segments on all digits
