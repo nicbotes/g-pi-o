@@ -19,8 +19,8 @@ import time
 display = SevenSegmentDisplay()
 try:
     while True:
-        display.display_number('1234')
-        time.sleep(1)
+        display.display_number('1111')
+        time.sleep(0.010)
 except KeyboardInterrupt:
     display.cleanup()
 ```
