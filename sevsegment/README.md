@@ -1,4 +1,4 @@
-# 7segment
+# Sev segment
 
 A Python library for controlling a 4-digit 7-segment display on a Raspberry Pi.
 
@@ -13,7 +13,7 @@ pip install .
 **Use the library in your project:**
 
 ```python
-from 7segment.display import SevenSegmentDisplay
+from sevsegment.display import SevenSegmentDisplay
 
 display = SevenSegmentDisplay()
 try:
@@ -25,7 +25,7 @@ except KeyboardInterrupt:
 ```
 
 ```python
-from 7segment.display import SevenSegmentDisplay
+from sevsegment.display import SevenSegmentDisplay
 
 display = SevenSegmentDisplay()
 display.display_number('1234')
