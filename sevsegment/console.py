@@ -1,4 +1,4 @@
-from sevensegment.display import SevenSegmentDisplay
+from sevsegment.display import SevenSegmentDisplay
 import time
 
 def main():
