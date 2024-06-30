@@ -12,6 +12,22 @@ class SimpleSevenSegmentDisplay:
         # Set up GPIO
         GPIO.setmode(GPIO.BCM)
         self.setup_pins()
+        self.segment_numbers = {
+            '0': 0,
+            '1': 1,
+            '2': 2,
+            '3': 3,
+            '4': 4,
+            '5': 5,
+            '6': 6,
+            '7': 7,
+        }
+        self.digit_numbers = {
+            '0': 0,
+            '1': 1,
+            '2': 2,
+            '3': 3,
+        }
 
     def load_config(self):
         with open(os.path.join(os.path.dirname(__file__), self.config_path)) as config_file:
@@ -28,16 +44,22 @@ class SimpleSevenSegmentDisplay:
             GPIO.setup(digit, GPIO.OUT)
             GPIO.output(digit, 1)
 
-    def light_segment(self, segment):
-        digit = 0  # Hardcode to the first digit for simplicity
-        if segment < 0 or segment > 7:
+    def light_segment(self, digit_number, segment_number):
+        if digit_number < 0 or digit_number > 3:
+            raise ValueError("Digit must be between 0 and 3.")
+        
+        if segment_number < 0 or segment_number > 7:
             raise ValueError("Segment must be between 0 and 7.")
         
-        GPIO.output(self.segments[segment], 1)
-        GPIO.output(self.digits[digit], 0)
+        # Get the actual GPIO pin for the segment and digit
+        segment_pin = self.segments[self.segment_numbers[str(segment_number)]]
+        digit_pin = self.digits[self.digit_numbers[str(digit_number)]]
+
+        GPIO.output(segment_pin, 1)
+        GPIO.output(digit_pin, 0)
         time.sleep(0.5)  # Light up the segment for 0.5 seconds
-        GPIO.output(self.digits[digit], 1)
-        GPIO.output(self.segments[segment], 0)
+        GPIO.output(digit_pin, 1)
+        GPIO.output(segment_pin, 0)
 
     def cleanup(self):
         # Turn off all segments
@@ -53,8 +75,9 @@ def main():
     display = SimpleSevenSegmentDisplay()
     try:
         while True:
-            segment = int(input("Enter the segment to illuminate (0-7): "))
-            display.light_segment(segment)
+            physical_digit_number = 0  # Hardcoded to digit 0 for simplicity
+            physical_segment_number = int(input("Enter the segment to illuminate (0-7): "))
+            display.light_segment(physical_digit_number, physical_segment_number)
     except KeyboardInterrupt:
         display.cleanup()
     except ValueError:
