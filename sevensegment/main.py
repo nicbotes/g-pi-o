@@ -27,20 +27,20 @@ def signal_handler(sig, frame):
             display.cleanup()
             sys.exit(0)
         elif user_input.lower() == 'char':
-            digit = int(input("Enter digit position (0-3): "))
+            digit = 1#int(input("Enter digit position (0-3): "))
             character = input("Enter character (0-9, A-F): ").upper()
             dp_input = input("Include decimal point? (y/n): ")
             decimal_point = dp_input.lower() == 'y'
             display.display_character(digit, character, decimal_point)
             break
         elif user_input.lower() == 'seg':
-            digit = int(input("Enter digit position (0-3): "))
+            digit = 1#int(input("Enter digit position (0-3): "))
             segment = int(input("Enter segment position (0-7): "))
             display.light_segment(digit, segment)
             break
         elif user_input.isdigit() and len(user_input) <= 4:
             current_number = user_input.zfill(4)
-            dp_input = input("Enter decimal point positions (0-3, separated by space, or 'none'): ")
+            dp_input = 'none' #input("Enter decimal point positions (0-3, separated by space, or 'none'): ")
             if dp_input.lower() == 'none':
                 decimal_points = []
             else:
