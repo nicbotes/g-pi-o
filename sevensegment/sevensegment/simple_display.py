@@ -13,14 +13,14 @@ class SimpleSevenSegmentDisplay:
         GPIO.setmode(GPIO.BCM)
         self.setup_pins()
         self.segment_numbers = {
-            '0': 0,
-            '1': 1,
-            '2': 2,
-            '3': 3,
-            '4': 4,
-            '5': 5,
-            '6': 6,
-            '7': 7,
+            '1': 0,
+            '2': 1,
+            '3': 2,
+            '4': 3,
+            '5': 4,
+            '6': 5,
+            '7': 6,
+            '8': 7,
         }
         self.digit_numbers = {
             '0': 0,
@@ -48,7 +48,7 @@ class SimpleSevenSegmentDisplay:
         if digit_number < 0 or digit_number > 3:
             raise ValueError("Digit must be between 0 and 3.")
         
-        if segment_number < 0 or segment_number > 7:
+        if segment_number < 0 or segment_number > 8:
             raise ValueError("Segment must be between 0 and 7.")
         
         # Get the actual GPIO pin for the segment and digit
@@ -75,7 +75,7 @@ def main():
     display = SimpleSevenSegmentDisplay()
     try:
         while True:
-            physical_digit_number = 0  # Hardcoded to digit 0 for simplicity
+            physical_digit_number = 0# Hardcoded to digit 0 for simplicity
             physical_segment_number = int(input("Enter the segment to illuminate (0-7): "))
             display.light_segment(physical_digit_number, physical_segment_number)
     except KeyboardInterrupt:
