@@ -43,7 +43,9 @@ def main():
         last_press_time = time.time()
         last_move_time = time.time()
         while True:
-            seven_segment.display_number(str(press_count).zfill(4))  # Continuously display the count
+            # Display reversed count on seven-segment
+            count_str = str(press_count).zfill(4)[::-1]  # Reverse the string of the count
+            seven_segment.display_number(count_str)
 
             if GPIO.input(button_pin) == GPIO.LOW and (time.time() - last_press_time) > 0.2:
                 led.on()
@@ -62,14 +64,19 @@ def main():
 
             direction = joystick.read_direction()
             if (time.time() - last_move_time) > 0.2:
-                if direction['right']:
-                    led_position = (led_position + 1) % led_count if led_position != target_positions['right'] else led_position
-                elif direction['down']:
-                    led_position = (led_position + 1) % led_count if led_position != target_positions['down'] else led_position
-                elif direction['up']:
-                    led_position = (led_position + 1) % led_count if led_position != target_positions['up'] else led_position
-                elif direction['left']:
-                    led_position = (led_position + 1) % led_count if led_position != target_positions['left'] else led_position
+                for dir, pressed in direction.items():
+                    if pressed:
+                        target = target_positions[dir]
+                        # Determine shortest path to target
+                        forward_distance = (target - led_position) % led_count
+                        backward_distance = (led_position - target) % led_count
+
+                        if forward_distance < backward_distance:
+                            led_position = (led_position + 1) % led_count  # Move forward
+                        else:
+                            led_position = (led_position - 1) % led_count  # Move backward
+
+                        break  # Exit after the first active direction is processed
 
                 # Update LED color
                 color = ws2812.wheel((color_index + led_position * 10) % 255)

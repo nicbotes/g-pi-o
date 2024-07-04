@@ -2,6 +2,7 @@ import json
 import time
 import RPi.GPIO as GPIO
 import os
+import threading
 
 class SevenSegmentDisplay:
     def __init__(self, config_path='config.json'):
@@ -15,15 +16,6 @@ class SevenSegmentDisplay:
 
         # Digit patterns for numbers 0-9, A-F, and a space, with support for decimal point
         self.num = {
-                #'0':(0,0,0,0,0,0,0,0),
-                #'1':(1,0,0,0,0,0,0,0),
-                #'2':(0,1,0,0,0,0,0,0),
-                #'3':(0,0,1,0,0,0,0,0),
-                #'4':(0,0,0,1,0,0,0,0),
-                #'5':(0,0,0,0,1,0,0,0),
-                #'6':(0,0,0,0,0,1,0,0),
-                #'7':(0,0,0,0,0,0,1,0),
-                #'8':(0,0,0,0,0,0,0,1),
             ' ':(0,0,0,0,0,0,0,0),
             '0':(1,1,1,1,1,1,0,0),
             '1':(0,1,1,0,0,0,0,0),
@@ -43,6 +35,13 @@ class SevenSegmentDisplay:
             'F':(1,0,0,0,1,1,1,0)
         }
 
+        # Initialize display threading
+        self.current_display = '0000'
+        self.keep_running = True
+        self.display_thread = threading.Thread(target=self.run_display)
+        self.display_thread.daemon = True
+        self.display_thread.start()
+
     def load_config(self):
         with open(os.path.join(os.path.dirname(__file__), self.config_path)) as config_file:
             config = json.load(config_file)
@@ -58,6 +57,11 @@ class SevenSegmentDisplay:
             GPIO.setup(digit, GPIO.OUT)
             GPIO.output(digit, 1)
 
+    def run_display(self):
+        while self.keep_running:
+            self.display_number(self.current_display)
+            time.sleep(0.005)  # Adjust based on testing for optimal performance
+
     def display_number(self, number, decimal_points=None):
         if decimal_points is None:
             decimal_points = []
@@ -70,8 +74,17 @@ class SevenSegmentDisplay:
                     value = 1
                 GPIO.output(self.segments[loop], value)
             GPIO.output(self.digits[digit], 0)
-            time.sleep(0.001)
+            # time.sleep(0.001)
             GPIO.output(self.digits[digit], 1)
+
+    def update_display(self, value):
+        """
+        Update the display to show the given number or string, ensuring that it's
+        reversed for correct display orientation.
+        """
+        # Convert the value to string, fill to ensure 4 characters, and reverse it
+        reversed_value = str(value).zfill(4)[::-1]
+        self.current_display = reversed_value
 
     def display_character(self, digit, character, decimal_point=False):
         if digit < 0 or digit > 3:
@@ -84,7 +97,7 @@ class SevenSegmentDisplay:
                 value = 1
             GPIO.output(self.segments[loop], value)
         GPIO.output(self.digits[digit], 0)
-        time.sleep(0.001)
+        # time.sleep(0.001)
         GPIO.output(self.digits[digit], 1)
         GPIO.output(self.digits[digit], 1)
 
@@ -96,12 +109,13 @@ class SevenSegmentDisplay:
         
         GPIO.output(self.segments[segment], 1)
         GPIO.output(self.digits[digit], 0)
-        time.sleep(0.001)
+        # time.sleep(0.001)
         GPIO.output(self.digits[digit], 1)
         GPIO.output(self.segments[segment], 0)
 
     def cleanup(self):
-        # Display empty segments on all digits
+        self.keep_running = False
+        self.display_thread.join()
         for digit in range(4):
             for loop in range(0, 8):
                 GPIO.output(self.segments[loop], 0)
