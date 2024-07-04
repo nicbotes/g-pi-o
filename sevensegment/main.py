@@ -44,8 +44,8 @@ def main():
         last_move_time = time.time()
         while True:
             # Display reversed count on seven-segment
-            count_str = str(press_count).zfill(4)[::-1]  # Reverse the string of the count
-            seven_segment.display_number(count_str)
+            count_str = str(press_count).zfill(4)
+            seven_segment.update_display(count_str)
 
             if GPIO.input(button_pin) == GPIO.LOW and (time.time() - last_press_time) > 0.2:
                 led.on()

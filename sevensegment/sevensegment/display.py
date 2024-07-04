@@ -3,6 +3,7 @@ import time
 import RPi.GPIO as GPIO
 import os
 import threading
+from threading import Lock
 
 class SevenSegmentDisplay:
     def __init__(self, config_path='config.json'):
@@ -36,11 +37,13 @@ class SevenSegmentDisplay:
         }
 
         # Initialize display threading
+        self.display_lock = threading.Lock()
         self.current_display = '0000'
         self.keep_running = True
         self.display_thread = threading.Thread(target=self.run_display)
         self.display_thread.daemon = True
         self.display_thread.start()
+
 
     def load_config(self):
         with open(os.path.join(os.path.dirname(__file__), self.config_path)) as config_file:
@@ -59,8 +62,9 @@ class SevenSegmentDisplay:
 
     def run_display(self):
         while self.keep_running:
-            self.display_number(self.current_display)
-            time.sleep(0.005)  # Adjust based on testing for optimal performance
+            with self.display_lock:
+                self.display_number(self.current_display)
+            time.sleep(0.01)  # Adjust based on testing for optimal performance
 
     def display_number(self, number, decimal_points=None):
         if decimal_points is None:
@@ -74,7 +78,7 @@ class SevenSegmentDisplay:
                     value = 1
                 GPIO.output(self.segments[loop], value)
             GPIO.output(self.digits[digit], 0)
-            # time.sleep(0.001)
+            time.sleep(0.005)
             GPIO.output(self.digits[digit], 1)
 
     def update_display(self, value):
@@ -83,8 +87,9 @@ class SevenSegmentDisplay:
         reversed for correct display orientation.
         """
         # Convert the value to string, fill to ensure 4 characters, and reverse it
-        reversed_value = str(value).zfill(4)[::-1]
-        self.current_display = reversed_value
+        with self.display_lock:
+            reversed_value = str(value).zfill(4)[::-1]
+            self.current_display = reversed_value
 
     def display_character(self, digit, character, decimal_point=False):
         if digit < 0 or digit > 3:

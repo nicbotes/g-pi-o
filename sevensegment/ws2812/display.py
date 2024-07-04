@@ -2,7 +2,7 @@ from rpi_ws281x import PixelStrip, Color
 import time
 
 class WS2812Display:
-    def __init__(self, led_count=24, led_pin=18, led_freq_hz=800000, led_dma=10, led_brightness=50, led_invert=False, led_channel=0):
+    def __init__(self, led_count=24, led_pin=18, led_freq_hz=800000, led_dma=10, led_brightness=5, led_invert=False, led_channel=0):
         self.led_count = led_count
         self.led_pin = led_pin
         self.led_freq_hz = led_freq_hz
