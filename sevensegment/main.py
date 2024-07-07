@@ -5,6 +5,7 @@ from joystick.move import Joystick
 from ws2812.display import WS2812Display
 from sevensegment.display import SevenSegmentDisplay
 from rpi_ws281x import Color  # Import Color class
+from speaker.speaker import Speaker
 
 def main():
     GPIO.setmode(GPIO.BCM)
@@ -22,6 +23,9 @@ def main():
     led_count = 24
 
     GPIO.setup(button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Button pin set as input with pull-up resistor
+
+    speaker_pin = 12
+    speaker = Speaker(speaker_pin)  # Initialize speaker on GPIO 12
 
     led = LED(led_pin)
     joystick = Joystick(up_pin, down_pin, left_pin, right_pin)
@@ -59,6 +63,10 @@ def main():
                             ws2812.strip.setPixelColor(j, ws2812.wheel((i+j) % 255))
                         ws2812.strip.show()
                         time.sleep(0.01)
+                if press_count % 13 == 0:
+                    speaker.play_melody('twinkle_twinkle')
+                if press_count % 8 == 0:
+                    speaker.play_melody('frere_jacques')
 
                 last_press_time = time.time()
             else:
@@ -96,6 +104,7 @@ def main():
     except KeyboardInterrupt:
         GPIO.cleanup()
         ws2812.cleanup()
+        speaker.cleanup()
 
 if __name__ == "__main__":
     main()
