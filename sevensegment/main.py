@@ -55,7 +55,7 @@ def main():
             count_str = str(press_count).zfill(4)
             seven_segment.update_display(count_str)
 
-            if GPIO.input(button_pin) == GPIO.LOW and (time.time() - last_press_time) > 0.1:
+            if GPIO.input(button_pin) == GPIO.LOW and (time.time() - last_press_time) > 0.25:
                 led.on()
                 press_count += 1
                 count_str = str(press_count).zfill(4)

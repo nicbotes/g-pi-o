@@ -64,7 +64,7 @@ class SevenSegmentDisplay:
         while self.keep_running:
             with self.display_lock:
                 self.display_number(self.current_display)
-            time.sleep(0.005)  # Adjust based on testing for optimal performance
+            time.sleep(0.001)  # Adjust based on testing for optimal performance
 
     def display_number(self, number, decimal_points=None):
         if decimal_points is None:
@@ -78,7 +78,7 @@ class SevenSegmentDisplay:
                     value = 1
                 GPIO.output(self.segments[loop], value)
             GPIO.output(self.digits[digit], 0)
-            time.sleep(0.005)
+            time.sleep(0.001)
             GPIO.output(self.digits[digit], 1)
 
     def update_display(self, value):
