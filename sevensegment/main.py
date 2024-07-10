@@ -40,6 +40,11 @@ def stop_current_thread():
         current_thread.join()  # Wait for the thread to finish if it is running
     current_thread = None
 
+def is_target_reached(target, led_position, trails):
+    if target in trails:
+        return True
+    return target == led_position
+
 def main():
 #   thread_control = ThreadControl()
     GPIO.setmode(GPIO.BCM)
@@ -123,7 +128,8 @@ def main():
                         forward_distance = (target - led_position) % led_count
                         backward_distance = (led_position - target) % led_count
 
-                        if led_position != target:  # Move only if not at target
+                        trail_positions = [trail_1, trail_2, trail_3, trail_4]  # Calculates positions for trails 1-4
+                        if not is_target_reached(target, led_position, trail_positions): # Move only if not at target
                             if forward_distance < backward_distance:
                                 led_position = (led_position + 1) % led_count  # Move forward
                             else:
