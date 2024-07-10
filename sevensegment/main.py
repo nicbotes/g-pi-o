@@ -106,30 +106,47 @@ def main():
             else:
                 led.off()
 
+
+            # Initialize last_direction outside the loop
+            last_direction = None
+
             direction = joystick.read_direction()
             if (time.time() - last_move_time) > 0.05:
                 for dir, pressed in direction.items():
                     if pressed:
-                        last_direction = dir
+                        # Detect direction change
+                        direction_changed = last_direction is not None and last_direction != dir
+                        last_direction = dir  # Update the last_direction to the current one
+
                         target = target_positions[dir]
                         # Determine shortest path to target
                         forward_distance = (target - led_position) % led_count
                         backward_distance = (led_position - target) % led_count
 
-                        if forward_distance < backward_distance:
-                            led_position = (led_position + 1) % led_count  # Move forward
+                        if led_position != target:  # Move only if not at target
+                            if forward_distance < backward_distance:
+                                led_position = (led_position + 1) % led_count  # Move forward
+                            else:
+                                led_position = (led_position - 1) % led_count  # Move backward
+
+                        # Update trailing positions
+                        if direction_changed:
+                            # Swap the leading edge of the trail to become the new led_position
+                            new_lead_position = (led_position - 4) % led_count
+                            led_position = new_lead_position
+                            # Assign new positions for the trail based on new led_position
+                            trail_1 = (led_position + 1) % led_count
+                            trail_2 = (led_position + 2) % led_count
+                            trail_3 = (led_position + 3) % led_count
+                            trail_4 = (led_position + 4) % led_count
+                        else:
+                            # Regular trail update
                             trail_1 = (led_position - 1) % led_count
                             trail_2 = (led_position - 2) % led_count
                             trail_3 = (led_position - 3) % led_count
                             trail_4 = (led_position - 4) % led_count
-                        else:
-                            led_position = (led_position - 1) % led_count  # Move backward
-                            trail_1 = (led_position + 1) % led_count # the tail leads on the backwards direction
-                            trail_2 = (led_position + 2) % led_count
-                            trail_3 = (led_position + 3) % led_count
-                            trail_4 = (led_position + 4) % led_count # the tail is the head now.
 
-                        break  # Exit after the first active direction is processed
+                        break  # Exit after processing the first active direction
 
                 # Update LED color
                 color = ws2812.wheel((color_index + led_position * 10) % 255)
@@ -147,6 +164,7 @@ def main():
                 last_move_time = time.time()
 
             time.sleep(0.1)  # Main loop delay
+
 
     except KeyboardInterrupt:
         GPIO.cleanup()
