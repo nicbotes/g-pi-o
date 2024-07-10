@@ -16,10 +16,10 @@ def main():
     led_pin = 24
 
     # Joystick pins
-    up_pin = 27
-    down_pin = 17
-    left_pin = 23
-    right_pin = 22
+    up_pin = 17
+    down_pin = 27
+    left_pin = 22
+    right_pin = 23
 
     # ws2812
     led_count = 24
@@ -53,7 +53,7 @@ def main():
             count_str = str(press_count).zfill(4)
             seven_segment.update_display(count_str)
 
-            if GPIO.input(button_pin) == GPIO.LOW and (time.time() - last_press_time) > 0.5:
+            if GPIO.input(button_pin) == GPIO.LOW and (time.time() - last_press_time) > 0.1:
                 led.on()
                 press_count += 1
                 count_str = str(press_count).zfill(4)
@@ -75,7 +75,7 @@ def main():
                 led.off()
 
             direction = joystick.read_direction()
-            if (time.time() - last_move_time) > 0.2:
+            if (time.time() - last_move_time) > 0.05:
                 for dir, pressed in direction.items():
                     if pressed:
                         target = target_positions[dir]
