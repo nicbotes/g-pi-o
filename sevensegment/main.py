@@ -9,6 +9,7 @@ from sevensegment.display import SevenSegmentDisplay
 from rpi_ws281x import Color  # Import Color class
 from speaker.speaker import Speaker
 from threading import Thread, Lock
+import random
 # from thread_control import ThreadControl
 
 current_thread = None
@@ -102,10 +103,16 @@ def main():
 
                 if press_count % 10 == 0:
                     play_wheel_effect(ws2812)
-                if press_count % 13 == 0:
-                    play_melody(speaker, 'twinkle_twinkle')
-                if press_count % 8 == 0:
-                    play_melody(speaker, 'frere_jacques')
+                if press_count % 23 == 0:
+                    chimes = ['exciting_chime', 'chime_1', 'chime_2', 'chime_3']
+                    random.shuffle(chimes)
+                    selected_chime = chimes[0]
+
+                    play_melody(speaker, selected_chime)
+                if press_count % 51 == 0:
+                    melodies = ['twinkle_twinkle', 'frere_jacques']
+                    selected_melody = random.choice(melodies)
+                    play_melody(speaker, selected_melody)
 
                 last_press_time = time.time()
             else:
