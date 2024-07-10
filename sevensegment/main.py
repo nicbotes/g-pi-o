@@ -36,6 +36,8 @@ def main():
 
     press_count = 0
     led_position = 0  # Start LED at position 0
+    trail_1 = 23  # Start LED at position 0
+    trail_2 = 22  # Start LED at position 0
     color_index = 0   # Start color index for rainbow
 
     target_positions = {
@@ -78,6 +80,7 @@ def main():
             if (time.time() - last_move_time) > 0.05:
                 for dir, pressed in direction.items():
                     if pressed:
+                        last_direction = dir
                         target = target_positions[dir]
                         # Determine shortest path to target
                         forward_distance = (target - led_position) % led_count
@@ -85,8 +88,12 @@ def main():
 
                         if forward_distance < backward_distance:
                             led_position = (led_position + 1) % led_count  # Move forward
+                            trail_1 = (led_position - 1) % led_count
+                            trail_2 = (led_position - 2) % led_count
                         else:
                             led_position = (led_position - 1) % led_count  # Move backward
+                            trail_1 = (led_position + 1) % led_count # the tail leads on the backwards direction
+                            trail_2 = (led_position + 2) % led_count # the tail is the head now.
 
                         break  # Exit after the first active direction is processed
 
@@ -97,6 +104,8 @@ def main():
                 # Clear and set new LED color
                 ws2812.set_color(Color(0, 0, 0))  # Clear the strip
                 ws2812.strip.setPixelColor(led_position, color)
+                ws2812.strip.setPixelColor(trail_1, color)
+                ws2812.strip.setPixelColor(trail_2, color)
                 ws2812.strip.show()
 
                 last_move_time = time.time()
