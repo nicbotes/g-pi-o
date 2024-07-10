@@ -103,13 +103,13 @@ def main():
 
                 if press_count % 10 == 0:
                     play_wheel_effect(ws2812)
-                if press_count % 23 == 0:
+                if press_count % 8 == 0:
                     chimes = ['exciting_chime', 'chime_1', 'chime_2', 'chime_3']
                     random.shuffle(chimes)
                     selected_chime = chimes[0]
 
                     play_melody(speaker, selected_chime)
-                if press_count % 51 == 0:
+                if press_count % 31 == 0:
                     melodies = ['twinkle_twinkle', 'frere_jacques']
                     selected_melody = random.choice(melodies)
                     play_melody(speaker, selected_melody)
@@ -180,6 +180,9 @@ def main():
 
 
     except KeyboardInterrupt:
+        for i in range(ws2812.strip.numPixels()):
+            ws2812.strip.setPixelColor(i, Color(0, 0, 0))
+        ws2812.strip.show()
         GPIO.cleanup()
         ws2812.cleanup()
         speaker.cleanup()
