@@ -8,37 +8,40 @@ from ws2812.display import WS2812Display
 from sevensegment.display import SevenSegmentDisplay
 from rpi_ws281x import Color  # Import Color class
 from speaker.speaker import Speaker
-from thread_control import ThreadControl
+from threading import Thread, Lock
+# from thread_control import ThreadControl
 
-# def play_melody(speaker, melody_name):
-#     global current_thread
-#     with lock:
-#         stop_current_thread()  # Ensure any running thread is stopped before starting a new one
-#         current_thread = Thread(target=speaker.play_melody, args=(melody_name,))
-#         current_thread.start()
+current_thread = None
+lock = Lock()
 
-# def play_wheel_effect(ws2812):
-#     global current_thread
-#     with lock:
-#         stop_current_thread()
-#         def wheel_effect():
-#             for i in range(256):  # Fast rainbow effect
-#                 for j in range(ws2812.strip.numPixels()):
-#                     ws2812.strip.setPixelColor(j, ws2812.wheel((i+j) % 255))
-#                 ws2812.strip.show()
-#                 time.sleep(0.01)
-#         current_thread = Thread(target=wheel_effect)
-#         current_thread.start()
+def play_melody(speaker, melody_name):
+    global current_thread
+    with lock:
+        stop_current_thread()  # Ensure any running thread is stopped before starting a new one
+        current_thread = Thread(target=speaker.play_melody, args=(melody_name,))
+        current_thread.start()
 
-# def stop_current_thread():
-#     global current_thread
-#     if current_thread is not None:
-#         current_thread.join()  # Wait for the thread to finish if it is running
-#     current_thread = None
+def play_wheel_effect(ws2812):
+    global current_thread
+    with lock:
+        stop_current_thread()
+        def wheel_effect():
+            for i in range(256):  # Fast rainbow effect
+                for j in range(ws2812.strip.numPixels()):
+                    ws2812.strip.setPixelColor(j, ws2812.wheel((i+j) % 255))
+                ws2812.strip.show()
+                time.sleep(0.01)
+        current_thread = Thread(target=wheel_effect)
+        current_thread.start()
 
+def stop_current_thread():
+    global current_thread
+    if current_thread is not None:
+        current_thread.join()  # Wait for the thread to finish if it is running
+    current_thread = None
 
 def main():
-    thread_control = ThreadControl()
+#   thread_control = ThreadControl()
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)  # Disable warnings or ensure cleanup before setting modes
     button_pin = 21
@@ -93,11 +96,11 @@ def main():
                 seven_segment.update_display(count_str)
 
                 if press_count % 10 == 0:
-                    thread_control.play_wheel_effect(ws2812)
+                    play_wheel_effect(ws2812)
                 if press_count % 13 == 0:
-                    thread_control.play_melody(speaker, 'twinkle_twinkle')
+                    play_melody(speaker, 'twinkle_twinkle')
                 if press_count % 8 == 0:
-                    thread_control.play_melody(speaker, 'frere_jacques')
+                    play_melody(speaker, 'frere_jacques')
 
                 last_press_time = time.time()
             else:
